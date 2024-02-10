@@ -1,18 +1,27 @@
 "use client"
 
-import { useState, MouseEvent } from "react"
+import { useFetchState } from "@/hooks/useFetchState"
+import { useState, MouseEvent, useEffect } from "react"
 
-type State = {
+export type State = {
   player: 0 | 1 | null
   state: "O" | "X" | null
 }
 
 const players = ["John", "Peter"]
-const state = Array(9).fill({ player: null, state: null })
 
 export default function Home() {
+  const { data, error, loading } = useFetchState()
   const [player, setPlayer] = useState(players[0])
-  const [boardState, setBoardState] = useState<State[]>(state)
+  const [boardState, setBoardState] = useState<State[]>([])
+
+  useEffect(() => {
+    if (data) setBoardState(data)
+  }, [data])
+
+  if (loading) return <div>Loading...</div>
+  if (error) return <div>Error: {(error as Error).message}</div>
+  if (!data) return null
 
   function handleOnClick(e: MouseEvent<HTMLButtonElement>, index: number) {
     const isFirstPlayer = player === players[0]
@@ -28,7 +37,7 @@ export default function Home() {
     return boardState.every((cell) => cell.state !== null)
   }
 
-  function isFilled(index: number) {
+  function isCellFilled(index: number) {
     return boardState[index].state !== null
   }
 
@@ -47,7 +56,7 @@ export default function Home() {
             className={buttonStyles}
             key={index}
             onClick={(e) => handleOnClick(e, index)}
-            disabled={isFilled(index)}
+            disabled={isCellFilled(index)}
           >
             {state}
           </button>
