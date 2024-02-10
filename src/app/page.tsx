@@ -1,6 +1,7 @@
 "use client"
 
 import { useFetchState } from "@/hooks/useFetchState"
+import { useQuery } from "@tanstack/react-query"
 import { useState, MouseEvent, useEffect } from "react"
 
 export type State = {
@@ -11,7 +12,10 @@ export type State = {
 const players = ["John", "Peter"]
 
 export default function Home() {
-  const { data, error, loading } = useFetchState()
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["state"],
+    queryFn: () => fetch("api").then((res) => res.json()),
+  })
   const [player, setPlayer] = useState(players[0])
   const [boardState, setBoardState] = useState<State[]>([])
 
@@ -19,7 +23,7 @@ export default function Home() {
     if (data) setBoardState(data)
   }, [data])
 
-  if (loading) return <div>Loading...</div>
+  if (isLoading) return <div>Loading...</div>
   if (error) return <div>Error: {(error as Error).message}</div>
   if (!data) return null
 
