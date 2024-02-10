@@ -1,8 +1,7 @@
 "use client"
 
-import { useFetchState } from "@/hooks/useFetchState"
-import { useQuery } from "@tanstack/react-query"
-import { useState, MouseEvent, useEffect } from "react"
+import { useTicTacToe } from "@/hooks/useBoardState"
+import { useState, MouseEvent } from "react"
 
 export type State = {
   player: 0 | 1 | null
@@ -12,21 +11,13 @@ export type State = {
 const players = ["John", "Peter"]
 
 export default function Home() {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["state"],
-    queryFn: () => fetch("api").then((res) => res.json()),
-  })
+  const { data: boardState, refetchState, mutation, isLoading, error } = useTicTacToe()
   const [player, setPlayer] = useState(players[0])
-  const [boardState, setBoardState] = useState<State[]>([])
-
-  useEffect(() => {
-    if (data) setBoardState(data)
-  }, [data])
 
   if (isLoading) return <div>Loading...</div>
   if (error) return <div>Error: {(error as Error).message}</div>
-  if (!data) return null
-
+  if (!boardState) return null
+  console.log({ boardState })
   function handleOnClick(e: MouseEvent<HTMLButtonElement>, index: number) {
     const isFirstPlayer = player === players[0]
     isFirstPlayer ? setPlayer(players[1]) : setPlayer(players[0])
@@ -34,7 +25,7 @@ export default function Home() {
       if (i === index) return { player: isFirstPlayer ? 0 : 1, state: isFirstPlayer ? "X" : "O" }
       return cell
     })
-    setBoardState(newBoard)
+    mutation.mutate(newBoard)
   }
 
   function isGameOver() {

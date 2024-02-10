@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { State } from "../page"
 
 export async function GET() {
@@ -7,8 +7,9 @@ export async function GET() {
   return NextResponse.json(state)
 }
 
-export async function POST() {
-  return NextResponse.json({ message: "Hello - POST" })
+export async function POST(request: NextRequest) {
+  console.log(request.json())
+  return NextResponse.json({ message: "Posted successfully" })
 }
 
 export async function PUT() {
